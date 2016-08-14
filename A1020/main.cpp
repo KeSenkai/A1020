@@ -1,86 +1,46 @@
-#include<iostream>
-#include<vector>
-#include<map>
-#include<list>
-
+#include<cstdio>  
+#include<string>  
+#include<cstring>  
+#include<vector>  
+#include<iostream>  
+#include<queue>  
+#include<algorithm>  
 using namespace std;
+typedef long long LL;
+const int INF = 0x7FFFFFFF;
+const int maxn = 1e3 + 10;
+int n, a[maxn], b[maxn], ch[maxn][2], root;
 
-struct node
+void dfs(int&x, int l, int r, int ll, int rr)
 {
-	int left = -1, right = -1;
-};
-map<int, node>tree;
-
-void get_tree(vector<int> post, vector<int>in)
-{
-	if (post.size() <= 1) return;
-	int boot = post[post.size() - 1];
-	int boot_pos = 0;
-	for (; boot_pos < in.size(); ++boot_pos)
+	if (l > r) x = 0;
+	for (int i = l; i <= r; i++)
 	{
-		if (in[boot_pos] == boot)
-			break;
+		if (a[i] == b[rr])
+		{
+			x = i;
+			dfs(ch[x][0], l, i - 1, ll, ll + i - l - 1);
+			dfs(ch[x][1], i + 1, r, ll + i - l, rr - 1);
+		}
 	}
-	vector<int>l_post, r_post, l_in, r_in;
-	for (int i = 0; i < in.size(); ++i)
-	{
-		if (i < boot_pos)
-			l_in.push_back(in[i]);
-		if (i > boot_pos)
-			r_in.push_back(in[i]);
-	}
-	for (int i = 0; i < post.size() - 1; ++i)
-	{
-		if (i < l_in.size())
-			l_post.push_back(post[i]);
-		else
-			r_post.push_back(post[i]);
-	}
-	if (l_post.size() != 0)
-	{
-		tree[boot].left = l_post[l_post.size() - 1];
-		get_tree(l_post, l_in);
-	}
-	if (r_post.size() != 0)
-	{
-		tree[boot].right = r_post[r_post.size() - 1];
-		get_tree(r_post, r_in);
-	}
-	
-	return;
 }
 
 int main()
 {
-	int N, boot;
-	
-	cin >> N;
-	vector<int> post(N, 0), in(N, 0), level;
-	for (int i = 0; i < N; ++i)
+	scanf_s("%d", &n);
+	for (int i = 1; i <= n; i++) scanf_s("%d", &b[i]);
+	for (int i = 1; i <= n; i++) scanf_s("%d", &a[i]);
+	dfs(root, 1, n, 1, n);
+	queue<int> p; p.push(root);
+	while (!p.empty())
 	{
-		cin >> post[i];
+		int q = p.front();  p.pop();
+		if (root != q) printf(" ");
+		printf("%d", a[q]);
+		if (ch[q][0]) p.push(ch[q][0]);
+		if (ch[q][1]) p.push(ch[q][1]);
 	}
-	for (int i = 0; i < N; ++i)
-	{
-		cin >> in[i];
-	}
-	boot = post[post.size() - 1];
-	get_tree(post, in);
-
-	list<int>deq(1,boot);
-	while (!deq.empty())
-	{
-		int front = deq.front();
-		deq.pop_front();
-		level.push_back(front);
-		if (tree[front].left != -1)
-			deq.push_back(tree[front].left);
-		if (tree[front].right != -1)
-			deq.push_back(tree[front].right);
-	}
-	cout << level[0];
-	for (int i = 1; i < level.size(); ++i)
-		cout << " " << level[i];
+	printf("\n");
 	system("pause");
 	return 0;
 }
